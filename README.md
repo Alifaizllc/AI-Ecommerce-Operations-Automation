@@ -82,5 +82,5 @@ AI-Ecommerce-Operations-Automation/
 Add 25 black shirts with SKU SHIRT-001 at price 29.99
 Create an order for Demo Customer for 2 units of SHIRT-001
 Send the latest invoice to Demo Customer
-**  
+
 
