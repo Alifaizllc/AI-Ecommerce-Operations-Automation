@@ -83,6 +83,8 @@ Add 25 black shirts with SKU SHIRT-001 at price 29.99
 Create an order for Demo Customer for 2 units of SHIRT-001
 Send the latest invoice to Demo Customer
 
+
+
 ## Security
 
 The public workflow is intentionally sanitized. Add credentials only inside your own n8n credential store and never commit API keys, tokens, passwords, store secrets, or customer data to GitHub.
