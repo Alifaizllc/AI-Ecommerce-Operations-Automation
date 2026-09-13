@@ -82,18 +82,6 @@ AI-Ecommerce-Operations-Automation/
 Add 25 black shirts with SKU SHIRT-001 at price 29.99
 Create an order for Demo Customer for 2 units of SHIRT-001
 Send the latest invoice to Demo Customer
-```
-
-## Suggested demo flow
-
-For a portfolio recording, keep the demonstration focused on the business outcome:
-
-1. Send a product request to the webhook.
-2. Run the workflow and show the AI classification/extraction.
-3. Show the new or updated Airtable inventory record.
-4. Show the WooCommerce product/stock update.
-5. Create an order and show inventory reduction.
-6. Trigger invoice generation and show the final email/PDF output.
 
 ## Security
 
@@ -102,10 +90,4 @@ The public workflow is intentionally sanitized. Add credentials only inside your
 ## Author
 
 **Ali Faiz**  
-Frontend Developer & AI Automation Developer  
-GitHub: https://github.com/Alifaizllc  
-LinkedIn: https://www.linkedin.com/in/ali-khattak
 
-## Status
-
-Portfolio implementation. Configure your own services and test the full flow before using it in a production store.
