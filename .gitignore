@@ -1,0 +1,21 @@
+# Secrets / local environment
+.env
+.env.*
+!.env.example
+
+# n8n/local runtime data
+.n8n/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Demo recordings (keep large/private videos out of Git)
+*.mp4
+*.mov
+*.mkv

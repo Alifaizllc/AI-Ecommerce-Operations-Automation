@@ -1,0 +1,1068 @@
+{
+  "name": "AI E-Commerce Operations Automation - Ali Faiz",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-ecommerce-operations",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1040,
+        -64
+      ],
+      "id": "2204ba52-cacf-4b14-aa2e-e846433ce077",
+      "name": "Webhook",
+      "webhookId": "06cc0016-0b9a-4719-ac64-20fb23095dee"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.message }}",
+        "options": {
+          "systemMessage": "You are an intelligent Automation Manager.\nAnalyze the user's request and classify it into one of these categories:\n\nDEFINITIONS:\n1. PRODUCT: Buying, Adding, Creating, Updating, or Deleting inventory/products.\n2. ORDER: Creating new Orders or Selling items to customers.\n3. INVOICE: Sending Invoices, Bills, or Emails.\n4. OTHER: Unrelated requests (like \"Hello\").\n\nEXAMPLES:\n\"Add 50 black shirts\" -> PRODUCT\n\"Change price of SKU-123\" -> PRODUCT\n\"Delete product T-Shirt\" -> PRODUCT\n\"Disable inventory\" -> PRODUCT\n\n\"Create order for Demo Customer\" -> ORDER\n\"Sell 2 Jeans to Mr. X\" -> ORDER\n\"New sale of 5 items\" -> ORDER\n\n\"Send invoice to email\" -> INVOICE\n\"Email the bill to customer\" -> INVOICE\n\nYOUR GOAL:\nReply with ONLY ONE WORD: PRODUCT, ORDER, INVOICE, or OTHER.\nDo not write any explanation."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -800,
+        -80
+      ],
+      "id": "5555fde0-a0e4-4735-b936-2838538f0974",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        160
+      ],
+      "id": "a23f9e0e-faff-48fe-ae52-d14093a6c48d",
+      "name": "Groq Chat Model"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "PRODUCT",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "0f6af158-0eec-4fc4-9cd4-a888e210dbc7"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "469e1eba-518f-4c65-b325-da6ef04dd2bc",
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "ORDER",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "2fe370b4-91ed-413b-8ec6-43d9978875e0",
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "INVOICE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "682f520b-5d88-4b3b-bf5e-549a15727e71",
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "OTHER",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -432,
+        -96
+      ],
+      "id": "9160c32e-e2d8-43c7-a94a-9fb569687799",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        -304
+      ],
+      "id": "591898ca-1ef1-47ce-89be-501da8e7c476",
+      "name": "Groq Chat Model1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the AI text\nconst text = $input.all()[0].json.output || $input.all()[0].json.content;\n\n// Find the first JSON object using Regex (Safe Mode)\nconst match = text.match(/\\{[\\s\\S]*?\\}/);\n\nif (match) {\n    return JSON.parse(match[0]);\n} else {\n    return { error: \"No JSON found\" };\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -416
+      ],
+      "id": "9750d9e0-78ce-42b4-bf04-30581fa6d056",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Webhook').item.json.body.message }}",
+        "options": {
+          "systemMessage": "You are a Database Assistant.\nYour job is to extract product details for the Inventory Sheet.\n\nEXTRACT ONLY THESE FIELDS in JSON format:\n1. Name (Product Name)\n2. SKU (Generate a simple SKU if missing, e.g. PROD-001)\n3. Price (Number)\n4. Stock (Quantity)\n5. BatchID (If provided, else null)\n\nRULES:\n- Return ONLY valid JSON.\n- Do not write any introduction or explanation.\n- If a value is missing, use null.\n\nEXAMPLE JSON:\n{\n  \"Name\": \"Black Shirt\",\n  \"SKU\": \"SHIRT-001\",\n  \"Price\": 500,\n  \"Stock\": 50,\n  \"BatchID\": \"B-123\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -80,
+        -528
+      ],
+      "id": "10d942d7-9e96-4f2e-9182-a0c9957d5031",
+      "name": "Product AI"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        -16
+      ],
+      "id": "93fc2897-3fa4-423d-9645-ea0d8f59d57d",
+      "name": "Groq Chat Model2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $input.all()[0].json.output || $input.all()[0].json.content; const match = text.match(/\\{[\\s\\S]*?\\}/); return match ? JSON.parse(match[0]) : { error: \"No JSON\" };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        -112
+      ],
+      "id": "d613f18a-ab24-4104-983c-2add7c20360f",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_PRODUCTS_BASE_ID",
+          "mode": "id"
+        },
+        "table": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_PRODUCTS_TABLE_ID",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Stock": "={{ $json.Stock }}",
+            "Price": "={{ $json.Price }}",
+            "Name": "={{ $json.Name }}",
+            "SKU": "={{ $json.SKU }}",
+            "WooID": 0
+          },
+          "matchingColumns": [
+            "SKU"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        608,
+        -384
+      ],
+      "id": "c1c12633-571c-4cbf-8a27-30474cb1bd77",
+      "name": "Product Record"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        352
+      ],
+      "id": "02f2e861-30e1-442c-9ee0-1b58c0616f10",
+      "name": "Groq Chat Model4"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Webhook').item.json.body.message }}",
+        "options": {
+          "systemMessage": "You are a data extraction AI. Extract ONLY the customer name from the user's message.\n\nCRITICAL RULES:\n1. Return ONLY valid JSON\n2. NO explanations, NO extra text\n3. Just the JSON object\n\nOutput format:\n{\"customerName\": \"name\"}\n\nExamples:\nInput: \"Send invoice to Demo Customer\"\nOutput: {\"customerName\": \"Demo Customer\"}\n\nInput: \"Send invoice to Test Customer\"\nOutput: {\"customerName\": \"Test Customer\"}\n\nInput: \"Email invoice to Sample Customer\"\nOutput: {\"customerName\": \"Sample Customer\"}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -32,
+        128
+      ],
+      "id": "1000b073-142d-4402-b5fc-933e5559bc06",
+      "name": "Invoice Worker"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $input.all()[0].json.output || $input.all()[0].json.content;\nconst match = text.match(/\\{[\\s\\S]*?\\}/);\nreturn match ? JSON.parse(match[0]) : { error: \"No JSON\" };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        368,
+        176
+      ],
+      "id": "9f11aa9e-0e3f-43fe-936b-6bf540f123ce",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 1,
+        "options": {
+          "sku": "={{ $('Product Record').item.json.fields.SKU }}"
+        }
+      },
+      "type": "n8n-nodes-base.wooCommerce",
+      "typeVersion": 1,
+      "position": [
+        864,
+        -400
+      ],
+      "id": "b9ed0837-31fe-42f6-b6c5-af0e7bb57abe",
+      "name": "Store woocommerce",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "resource": "product",
+        "operation": "update",
+        "productId": "={{ $json.id }}",
+        "updateFields": {
+          "name": "={{ $('Product Record').item.json.fields.Name }}",
+          "regularPrice": "={{ $('Product Record').item.json.fields.Price.toString() }}",
+          "stockQuantity": "={{ $('Product Record').item.json.fields.Stock }}"
+        },
+        "dimensionsUi": {},
+        "imagesUi": {},
+        "metadataUi": {}
+      },
+      "type": "n8n-nodes-base.wooCommerce",
+      "typeVersion": 1,
+      "position": [
+        1408,
+        -464
+      ],
+      "id": "5fd46b52-505b-4e35-98f5-d028dba2e814",
+      "name": "Update existing product"
+    },
+    {
+      "parameters": {
+        "resource": "product",
+        "operation": "create",
+        "name": "={{ $('Product Record').item.json.fields.Name }}",
+        "additionalFields": {
+          "manageStock": true,
+          "regularPrice": "={{ $('Product Record').item.json.fields.Price.toString() }}",
+          "sku": "={{ $('Product Record').item.json.fields.SKU }}",
+          "status": "publish",
+          "stockQuantity": "={{ $('Product Record').item.json.fields.Stock }}",
+          "type": "simple"
+        },
+        "dimensionsUi": {},
+        "imagesUi": {},
+        "metadataUi": {}
+      },
+      "type": "n8n-nodes-base.wooCommerce",
+      "typeVersion": 1,
+      "position": [
+        1408,
+        -256
+      ],
+      "id": "c250f162-119d-47a6-b471-23a7973b45af",
+      "name": "Creat new products"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1bb84eee-1561-4758-9914-12aa2842ad09",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "0",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1136,
+        -384
+      ],
+      "id": "f196e740-dfcd-471d-9a03-03ed3a884a53",
+      "name": "iD base"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_ORDERS_BASE_ID",
+          "mode": "id"
+        },
+        "table": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_ORDERS_TABLE_ID",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ProductSKU": "={{ $node[\"Search records\"].json.SKU }}",
+            "Quantity": "={{ $json.Quantity }}",
+            "CustomerName": "={{ $json.CustomerName }}",
+            "TotalAmount": "={{ $json.TotalAmount }}"
+          },
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1168,
+        -32
+      ],
+      "id": "16709e01-4e01-46f8-a9fd-87f5b55aad55",
+      "name": "Order crm"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Webhook').item.json.body.message }}",
+        "options": {
+          "systemMessage": "You are an Order Manager.\nExtract these details for the Orders Sheet.\nEXTRACT ONLY THESE FIELDS in JSON format:\n1. CustomerName (e.g. Demo Customer)\n2. ProductSKU (e.g. SHIRT-001)\n3. Quantity (Number)\n4. PaymentMethod (COD, Bank Transfer, Paid)\nRULES:\n- Return ONLY valid JSON.\n- If missing, use null.\nEXAMPLE:\n{ \"CustomerName\": \"Demo Customer\", \"ProductSKU\": \"SHIRT-001\", \"Quantity\": 2, \"PaymentMethod\": \"COD\" }"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        96,
+        -208
+      ],
+      "id": "1c9b813e-1dab-4136-980a-1e5c1e44d7ad",
+      "name": "order Data"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_PRODUCTS_BASE_ID",
+          "mode": "id"
+        },
+        "table": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_PRODUCTS_TABLE_ID",
+          "mode": "id"
+        },
+        "filterByFormula": "={SKU} = \"{{ $json.ProductSKU }}\"",
+        "returnAll": false,
+        "limit": 1,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        656,
+        -80
+      ],
+      "id": "bdc652c3-df4c-4149-99fd-51f9def51256",
+      "name": "Search records"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_PRODUCTS_BASE_ID",
+          "mode": "id"
+        },
+        "table": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_PRODUCTS_TABLE_ID",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Stock": "={{ $('Search records').item.json.Stock - $('Total amount nimali').item.json.Quantity }}",
+            "id": "={{ $('Search records').item.json.id }}",
+            "WooID": "={{ $('Search records').item.json.WooID }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1392,
+        32
+      ],
+      "id": "c46bc8ec-0f70-4413-abe2-566dcf98f20f",
+      "name": "Update Product Stock"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Order Data from previous Code Node\nconst order = $('Code in JavaScript1').item.json;\n\n// 2. Product Data from Search Node (Input to this node)\nconst product = $input.first().json;\n\n// 3. Safe Numbers (Convert to number to avoid NaN)\n// Agar Price/Stock empty ho to 0 maan lega\nconst price = parseFloat(product.Price) || 0;\nconst stock = parseInt(product.Stock) || 0;\nconst quantity = parseInt(order.Quantity) || 0;\n\n// 4. Calculate Total\nconst totalAmount = price * quantity;\n\n// 5. Return Clean Data for Next Steps\nreturn {\n  json: {\n    // --- Order Details ---\n    CustomerName: order.CustomerName,\n    ProductSKU: order.ProductSKU,\n    Quantity: quantity,\n    PaymentMethod: order.PaymentMethod,\n    \n    // --- Calculated Values ---\n    TotalAmount: totalAmount,\n    \n    // --- Product Details (For Updates) ---\n    ProductID: product.id,       // AirTable Update ke liye\n    ProductStock: stock,         // Stock Calculation ke liye\n    ProductWooID: product.WooID, // WooCommerce Sync ke liye\n    \n    // --- Meta Data ---\n    Date: new Date().toISOString().split('T')[0],\n    Platform: \"CRM (Live Sale)\",\n    InvoiceStatus: \"Pending\"\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        -80
+      ],
+      "id": "873aeb98-48fc-45ad-9774-f11c3afc4b10",
+      "name": "Total amount nimali"
+    },
+    {
+      "parameters": {
+        "resource": "product",
+        "operation": "update",
+        "productId": "={{ $('Search records').item.json.WooID }}",
+        "updateFields": {
+          "stockQuantity": "={{ $('Update Product Stock').item.json.fields.Stock }}"
+        },
+        "dimensionsUi": {},
+        "imagesUi": {},
+        "metadataUi": {}
+      },
+      "type": "n8n-nodes-base.wooCommerce",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        32
+      ],
+      "id": "5277ad96-77d2-4320-9875-3dd71eb33e1c",
+      "name": "Update a product"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_PRODUCTS_BASE_ID",
+          "mode": "id"
+        },
+        "table": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_PRODUCTS_TABLE_ID",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Product Record').item.json.id }}",
+            "WooID": "={{ $json.id }}",
+            "Price": "={{ $('Product Record').item.json.fields.Price }}",
+            "Stock": "={{ $('Product Record').item.json.fields.Stock }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1696,
+        -288
+      ],
+      "id": "8befff86-51e9-4994-b247-19d6d9acd599",
+      "name": "Update record"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_ORDERS_BASE_ID",
+          "mode": "id"
+        },
+        "table": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_ORDERS_TABLE_ID",
+          "mode": "id"
+        },
+        "filterByFormula": "={CustomerName} = \"{{ $json.customerName }}\"",
+        "options": {},
+        "sort": {
+          "property": [
+            {
+              "field": "OrderID",
+              "direction": "desc"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        656,
+        192
+      ],
+      "id": "7d461593-d2d5-4eb2-abfa-9506e117c4db",
+      "name": "Search Orders"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_PRODUCTS_BASE_ID",
+          "mode": "id"
+        },
+        "table": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_PRODUCTS_TABLE_ID",
+          "mode": "id"
+        },
+        "filterByFormula": "={SKU} = \"{{ $node[\"Search Orders\"].json.ProductSKU }}\"",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        944,
+        208
+      ],
+      "id": "3fffcad6-fc9d-4f19-89bc-27dbc6519076",
+      "name": "Get Product Details"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_CUSTOMERS_BASE_ID",
+          "mode": "id"
+        },
+        "table": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_CUSTOMERS_TABLE_ID",
+          "mode": "id"
+        },
+        "filterByFormula": "={Name} = \"{{ $node[\"Search Orders\"].json.CustomerName }}\"",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1248,
+        224
+      ],
+      "id": "d980f121-3b1d-43e0-ac89-777bc5c24456",
+      "name": "Get Customer Email"
+    },
+    {
+      "parameters": {
+        "jsCode": "const order = $node[\"Search Orders\"].json;\nconst product = $node[\"Get Product Details\"].json;\nconst customer = $node[\"Get Customer Email\"].json;\n\nconst invoiceHTML = `\n<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial; padding: 40px; background: #f5f5f5; }\n    .invoice { background: white; padding: 40px; max-width: 800px; margin: 0 auto; }\n    .header { text-align: center; border-bottom: 3px solid #667eea; padding-bottom: 20px; margin-bottom: 30px; }\n    .header h1 { color: #667eea; font-size: 36px; }\n    table { width: 100%; border-collapse: collapse; margin: 30px 0; }\n    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }\n    th { background: #667eea; color: white; }\n    .total { text-align: right; font-size: 20px; font-weight: bold; color: #667eea; margin-top: 20px; }\n  </style>\n</head>\n<body>\n  <div class=\"invoice\">\n    <div class=\"header\">\n      <h1>INVOICE</h1>\n      <p>Order #${order.OrderID}</p>\n    </div>\n    \n    <p><strong>Customer:</strong> ${order.CustomerName}</p>\n    <p><strong>Email:</strong> ${customer.Email}</p>\n    <p><strong>Date:</strong> ${order.Date}</p>\n    \n    <table>\n      <tr>\n        <th>Product</th>\n        <th>SKU</th>\n        <th>Quantity</th>\n        <p><strong>Date:</strong> ${new Date().toISOString().split('T')[0]}</p>\n        <th>Price</th>\n        <th>Total</th>\n      </tr>\n      <tr>\n        <td>${product.Name}</td>\n        <td>${product.SKU}</td>\n        <td>${order.Quantity}</td>\n        <td>PKR ${product.Price}</td>\n        <td>PKR ${order.TotalAmount}</td>\n      </tr>\n    </table>\n    \n    <div class=\"total\">\n      Total: PKR ${order.TotalAmount}\n    </div>\n  </div>\n</body>\n</html>\n`;\n\nreturn [{\n  json: {\n    html: invoiceHTML,\n    orderID: order.OrderID,\n    customerEmail: customer.Email,\n    customerName: order.CustomerName\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        272
+      ],
+      "id": "97081ecf-64f2-4d86-9e6b-1385c91bb461",
+      "name": "Generate Invoice HTML"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.pdfshift.io/v3/convert/pdf?api_key=YOUR_PDFSHIFT_API_KEY",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "source",
+              "value": "={{ $node[\"Generate Invoice HTML\"].json.html }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1776,
+        320
+      ],
+      "id": "e7f5851f-93f1-4c10-8c47-a4ab17d32846",
+      "name": "HTML to PDF"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $node[\"Generate Invoice HTML\"].json.customerEmail }}",
+        "subject": "=Invoice for Order #{{ $node[\"Generate Invoice HTML\"].json.orderID }}",
+        "message": "=<h2>Thank You for Your Order!</h2> <p>Dear {{ $node[\"Generate Invoice HTML\"].json.customerName }},</p> <p>Your invoice is attached.</p> <p><strong>Order ID:</strong> {{ $node[\"Generate Invoice HTML\"].json.orderID }}</p> <p>Best regards,<br>Your Store Team</p>",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2064,
+        352
+      ],
+      "id": "57d57698-5d13-45f1-ae38-d77a126bc75a",
+      "name": "Send Email",
+      "webhookId": "1244405b-f77f-4fee-be73-322a80c122c6"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Product AI",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "order Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Invoice Worker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Product AI",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Product Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Product AI": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "order Data",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Invoice Worker",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invoice Worker": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Search Orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Product Record": {
+      "main": [
+        [
+          {
+            "node": "Store woocommerce",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store woocommerce": {
+      "main": [
+        [
+          {
+            "node": "iD base",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "iD base": {
+      "main": [
+        [
+          {
+            "node": "Update existing product",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Creat new products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Order crm": {
+      "main": [
+        [
+          {
+            "node": "Update Product Stock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "order Data": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Total amount nimali",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Total amount nimali": {
+      "main": [
+        [
+          {
+            "node": "Order crm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Product Stock": {
+      "main": [
+        [
+          {
+            "node": "Update a product",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Creat new products": {
+      "main": [
+        [
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Orders": {
+      "main": [
+        [
+          {
+            "node": "Get Product Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Product Details": {
+      "main": [
+        [
+          {
+            "node": "Get Customer Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Customer Email": {
+      "main": [
+        [
+          {
+            "node": "Generate Invoice HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Invoice HTML": {
+      "main": [
+        [
+          {
+            "node": "HTML to PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML to PDF": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "tags": []
+}
